@@ -46,11 +46,13 @@ Opcional para algunas pruebas: CyberChef, AperiSolve, editor de cookies o Burp S
 1. Clonar o descargar el proyecto.
 
 2. Instalar dependencias:
+
    ```bash
    pip install -r requirements.txt
    ```
 
 3. Generar la imagen con esteganografía (carnet universitario y pista oculta):
+
    ```bash
    python create_stego_image.py
    ```
@@ -58,10 +60,10 @@ Opcional para algunas pruebas: CyberChef, AperiSolve, editor de cookies o Burp S
 4. Colocar la foto del profesor en `static/uploads/professor.jpg` y, si aplica, configurar sus metadatos según `static/uploads/INSTRUCCIONES_FOTO_PROFESOR.txt`.
 
 5. Ejecutar la aplicación:
+
    ```bash
    python app.py
    ```
-   Alternativa en Windows: `run.bat`
 
 6. Acceder en el navegador a: `http://localhost:5000`
 
@@ -69,13 +71,13 @@ Opcional para algunas pruebas: CyberChef, AperiSolve, editor de cookies o Burp S
 
 ## Credenciales de acceso
 
-| Rol           | Usuario  | Clave     |
-|---------------|----------|-----------|
-| Estudiante    | 20261001 | 12051998  |
-| Estudiante    | 20261002 | 23071999  |
-| Estudiante    | 20261003 | 15031997  |
-| Monitor       | 10011234 | admin2026 |
-| Coordinador   | 10021234 | coord2026 |
+| Rol         | Usuario  | Clave     |
+| ----------- | -------- | --------- |
+| Estudiante  | 20261001 | 12051998  |
+| Estudiante  | 20261002 | 23071999  |
+| Estudiante  | 20261003 | 15031997  |
+| Monitor     | 10011234 | admin2026 |
+| Coordinador | 10021234 | coord2026 |
 
 Para seguir el flujo del laboratorio se suele comenzar con el estudiante 20261001.
 
@@ -84,7 +86,7 @@ Para seguir el flujo del laboratorio se suele comenzar con el estudiante 2026100
 ## Estructura del proyecto
 
 ```
-labdarkwall2026/
+unileak-lab/
 ├── app.py                      # Aplicación Flask (rutas y lógica)
 ├── create_stego_image.py       # Genera imagen con esteganografía LSB
 ├── decode_stego.py             # Decodifica mensaje en profile_card.png
