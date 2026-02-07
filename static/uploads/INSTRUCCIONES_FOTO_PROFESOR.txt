@@ -1,0 +1,24 @@
+INSTRUCCIONES: Foto del profesor (metadatos)
+
+1. Coloca tu imagen del profesor en este mismo directorio con el nombre:
+   professor.jpg
+
+2. En los metadatos de la imagen debes incluir:
+
+   - Ruta siguiente (en Description, Comment o similar):
+     http://localhost:5000/boveda
+     (o solo: /boveda)
+
+   - FLAG #8 (en otro campo de metadatos o en la misma descripción):
+     FLAG{metadata_is_not_private}
+
+3. Cómo añadir metadatos (ejemplos):
+   - Windows: clic derecho > Propiedades > Detalles (añadir en Comentarios/Descripción).
+   - exiftool (línea de comandos): exiftool -Comment="/boveda - FLAG{metadata_is_not_private}" professor.jpg
+   - Editores EXIF online o software de edición de fotos.
+
+4. Hash SHA1 esperado para la bóveda (las 8 flags en orden alfabético, una por línea):
+   1f5defa32fbafb9d5c5cf60a809dd95a728a6032
+
+5. Para cambiar el video de YouTube del "regalo supremo", edita en app.py la variable:
+   youtube_regalo = 'https://www.youtube.com/watch?v=TU_VIDEO_ID'

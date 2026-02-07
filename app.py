@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, make_response, jsonify, send_file
+from flask import Flask, render_template, request, redirect, url_for, flash, make_response, jsonify, send_file, session
 import csv
 import json
 import base64
 import os
+import hashlib
+import random
 
 app = Flask(__name__)
 app.secret_key = 'univ_medellin_2026_secret'
@@ -247,12 +249,63 @@ def update_finance():
     
     write_csv('deudas.csv', deudas, ['estudiante_id', 'monto', 'concepto'])
     
-    # FLAG FINAL
+    # FLAG financiera; siguiente pista: foto del profesor (metadatos)
     return jsonify({
         'success': True,
         'message': 'Estado financiero actualizado',
-        'flag': 'FLAG{this_is_why_universities_get_hacked}'
+        'flag': 'FLAG{this_is_why_universities_get_hacked}',
+        'next_step': url_for('secreto_profesor')
     })
+
+# FLAG #8: en metadatos de la foto del profesor (usuario la añade en static/uploads/professor.jpg)
+FLAG_METADATA = 'FLAG{metadata_is_not_private}'
+
+# Todas las flags en orden alfabético para SHA1 final
+ALL_FLAGS = [
+    'FLAG{academic_roles_are_just_strings}',
+    'FLAG{base64_is_a_lie}',
+    'FLAG{client_side_validation_is_fake}',
+    'FLAG{debug_mode_ruins_everything}',
+    'FLAG{grades_are_not_sacred}',
+    'FLAG{images_should_not_talk}',
+    FLAG_METADATA,
+    'FLAG{this_is_why_universities_get_hacked}',
+]
+VAULT_HASH = hashlib.sha1('\n'.join(sorted(ALL_FLAGS)).encode()).hexdigest()
+
+# Página tras eliminar deuda: narrativa + foto del profesor (metadatos con ruta y flag)
+@app.route('/el-secreto-del-profesor')
+def secreto_profesor():
+    return render_template('secreto_profesor.html')
+
+# Bóveda final: introducir SHA1 de las 8 flags en orden alfabético
+@app.route('/boveda', methods=['GET', 'POST'])
+def boveda():
+    if request.method == 'POST':
+        hash_ingresado = (request.form.get('hash') or request.form.get('sha1') or '').strip().lower()
+        if hash_ingresado == VAULT_HASH:
+            session['vault_unlocked'] = True
+            return redirect(url_for('boveda'))
+        flash('Hash incorrecto. Verifica que hayas usado las 8 flags en orden alfabético y el SHA1.', 'error')
+        return redirect(url_for('boveda'))
+    unlocked = session.get('vault_unlocked', False)
+    # Lista de enlaces de YouTube para el regalo; el botón elige uno al azar
+    YOUTUBE_REGALOS = [
+        'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        'https://www.youtube.com/watch?v=EH3nK85MAIU',
+        'https://www.youtube.com/watch?v=JlqW11vHLtw',
+        'https://youtu.be/PNkhLZlsYjQ?si=jBnoxFNAcjBtiLpx',
+        'https://youtu.be/jNhgozo9QJY?si=IZOMfUU5ik1vwo33',
+        'https://www.youtube.com/watch?v=N5lTRsuUT5o',
+        'https://www.youtube.com/watch?v=h69VanYG0Ds',
+        'https://youtu.be/FQAcHm7-SoE?si=sJpPWuhufgPslFPG',
+        'https://www.youtube.com/watch?v=AXp7ydbqTrw',
+        'https://www.youtube.com/watch?v=tjiN9IYFutU',
+        'https://www.youtube.com/watch?v=RUorAzaDftg'
+
+    ]
+    youtube_regalo = random.choice(YOUTUBE_REGALOS) if YOUTUBE_REGALOS else '#'
+    return render_template('boveda.html', unlocked=unlocked, youtube_regalo=youtube_regalo)
 
 # Rutas auxiliares
 @app.route('/cambiar-clave')
@@ -265,6 +318,7 @@ def olvido_clave():
 
 @app.route('/logout')
 def logout():
+    session.pop('vault_unlocked', None)
     resp = make_response(redirect(url_for('index')))
     resp.set_cookie('session_data', '', expires=0)
     resp.set_cookie('access_token', '', expires=0)

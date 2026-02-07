@@ -144,7 +144,11 @@
                 .then(data => {
                     alert(data.message);
                     if(data.success) {
-                        location.reload();
+                        if(data.next_step) {
+                            window.location.href = data.next_step;
+                        } else {
+                            location.reload();
+                        }
                     }
                 });
             }

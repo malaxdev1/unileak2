@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bóveda DarkWall - Laboratorio UniLeak</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .boveda-container { max-width: 560px; margin: 0 auto; padding: 40px 20px; text-align: center; }
+        .boveda-container h1 { color: #8b0000; margin-bottom: 12px; }
+        .boveda-container .instrucciones { text-align: left; background: #f8f8f8; padding: 20px; border-radius: 8px; margin: 20px 0; font-size: 0.95rem; line-height: 1.5; }
+        .boveda-container input[type="text"] { width: 100%; padding: 12px; font-family: monospace; font-size: 0.9rem; margin: 10px 0; border: 2px solid #4a7ba7; border-radius: 6px; }
+        .boveda-container .btn-vault { background: #4a7ba7; color: white; border: none; padding: 14px 28px; font-size: 1rem; border-radius: 6px; cursor: pointer; margin-top: 8px; }
+        .boveda-container .btn-vault:hover { background: #3d6a94; }
+        .boveda-container .error { color: #c00; margin-top: 10px; }
+        /* Celebración */
+        .celebracion { padding: 30px 20px; }
+        .celebracion h2 { color: #2d7a3e; font-size: 1.8rem; margin-bottom: 16px; }
+        .celebracion p { font-size: 1.1rem; margin: 10px 0; }
+        .btn-regalo { display: none; background: linear-gradient(135deg, #8b0000, #b22222); color: white; border: none; padding: 18px 36px; font-size: 1.2rem; border-radius: 8px; cursor: pointer; margin-top: 24px; font-weight: bold; box-shadow: 0 4px 12px rgba(139,0,0,0.3); }
+        .btn-regalo.visible { display: inline-block; animation: pulse 1.5s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .confetti { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 999; }
+        .confetti-piece { position: absolute; width: 10px; height: 10px; animation: fall linear forwards; }
+        @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
+    </style>
+</head>
+<body>
+    {% if unlocked %}
+    <div class="confetti" id="confetti"></div>
+    {% endif %}
+    <div class="container">
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo-placeholder"><div class="logo-text">Universidad<br>de Medellín</div></div>
+            </div>
+            <div class="title-section"><h1>BÓVEDA DARKWALL</h1></div>
+            <div class="info-corner">
+                <a href="{{ url_for('index') }}" style="color: white; text-decoration: none;">Inicio</a>
+            </div>
+        </header>
+        <div class="main-content">
+            <div class="boveda-container">
+                {% if not unlocked %}
+                <h1>Acceso a la bóveda</h1>
+                <p style="color: #555;">El laboratorio queda cerrado con una sola llave: el hash SHA1 de todas las flags recopiladas.</p>
+                <div class="instrucciones">
+                    <p><strong>Instrucciones:</strong></p>
+                    <ul style="margin: 10px 0 0 20px;">
+                        <li>Reúne las <strong>8 flags</strong> del laboratorio (incluida la de la foto del profesor).</li>
+                        <li>Ordénalas <strong>alfabéticamente</strong> (por el texto completo de cada flag).</li>
+                        <li>Calcula el <strong>SHA1</strong> del texto formado por esas 8 líneas (una flag por línea, en ese orden).</li>
+                        <li>Pega aquí el hash en minúsculas (40 caracteres hexadecimales).</li>
+                    </ul>
+                </div>
+                <form method="post" action="{{ url_for('boveda') }}">
+                    <label for="hash">Hash SHA1 (40 caracteres)</label><br>
+                    <input type="text" id="hash" name="hash" placeholder="ej: 1f5defa32fbafb9d5c5cf60a809dd95a728a6032" maxlength="40" autocomplete="off">
+                    <br>
+                    <button type="submit" class="btn-vault">Verificar y abrir bóveda</button>
+                </form>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, msg in messages %}
+                            <p class="error">{{ msg }}</p>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                {% else %}
+                <div class="celebracion">
+                    <h2>Bóveda abierta</h2>
+                    <p>Has completado el laboratorio DarkWall UniLeak.</p>
+                    <p>Las 8 flags han sido validadas correctamente.</p>
+                    <p style="margin-top: 20px;">En unos segundos podrás reclamar el regalo supremo darkwalleano.</p>
+                    <a id="btnRegalo" href="{{ youtube_regalo }}" target="_blank" rel="noopener" class="btn-regalo">Obtener regalo supremo darkwalleano</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <footer class="footer">
+            <p>Universidad de Medellín - DarkWall Lab 2026</p>
+        </footer>
+    </div>
+    {% if unlocked %}
+    <script>
+        (function() {
+            var colores = ['#8b0000', '#4a7ba7', '#2d7a3e', '#d4a017', '#6b2d5c'];
+            var cont = document.getElementById('confetti');
+            for (var i = 0; i < 60; i++) {
+                var p = document.createElement('div');
+                p.className = 'confetti-piece';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.background = colores[Math.floor(Math.random() * colores.length)];
+                p.style.animationDuration = (4 + Math.random() * 4) + 's';
+                p.style.animationDelay = Math.random() * 2 + 's';
+                p.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                cont.appendChild(p);
+            }
+            setTimeout(function() {
+                document.getElementById('btnRegalo').classList.add('visible');
+            }, 5000);
+        })();
+    </script>
+    {% endif %}
+</body>
+</html>

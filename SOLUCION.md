@@ -339,15 +339,67 @@ curl -X POST http://localhost:5000/api/finance/update \
   -d '{"student_id":"20261001","debt":0}'
 ```
 
-### FLAG FINAL
+### FLAG #7
 ```
 FLAG{this_is_why_universities_get_hacked}
 ```
+
+Tras actualizar la deuda a 0, la aplicación redirige a la página "El secreto del profesor".
 
 ### ¿Qué aprendemos?
 - Operaciones financieras deben tener múltiples validaciones
 - Logging y auditoría son críticos
 - Principio de mínimo privilegio
+
+---
+
+## ACTO 8: Metadatos en la foto del profesor
+
+### Objetivo
+Obtener la última flag y la ruta a la bóveda desde los metadatos de la imagen del profesor.
+
+### Vulnerabilidad
+- Información sensible en metadatos EXIF/comentarios de imágenes
+- Los metadatos viajan con el archivo y pueden leerse con herramientas estándar
+
+### Solución
+
+1. Tras eliminar la deuda, se redirige a `http://localhost:5000/el-secreto-del-profesor`.
+2. En esa página se muestra una foto del profesor (archivo que debes colocar en `static/uploads/professor.jpg`).
+3. En los metadatos de esa imagen debes incluir (para que el lab funcione):
+   - **Ruta siguiente:** `http://localhost:5000/boveda` (o solo `/boveda`)
+   - **FLAG #8:** `FLAG{metadata_is_not_private}`
+4. El participante descarga la imagen, usa herramientas como `exiftool`, las propiedades del archivo en Windows, o visores EXIF online, y obtiene la ruta y la flag.
+
+### FLAG #8
+```
+FLAG{metadata_is_not_private}
+```
+
+### ¿Qué aprendemos?
+- Los metadatos (EXIF, comentarios) no son privados; se extraen con herramientas comunes.
+- No almacenar rutas, claves ni datos sensibles en metadatos de imágenes.
+
+---
+
+## Bóveda final
+
+### Objetivo
+Comprobar que se recopilaron las 8 flags y cerrar el laboratorio con el hash SHA1.
+
+### Solución
+
+1. Ir a `http://localhost:5000/boveda`.
+2. Listar las 8 flags en orden **alfabético** (una por línea).
+3. Calcular el SHA1 de ese texto (las 8 líneas concatenadas con salto de línea).
+4. Pegar el hash en el formulario (40 caracteres hexadecimales en minúsculas).
+
+**Hash esperado (solución):**
+```
+1f5defa32fbafb9d5c5cf60a809dd95a728a6032
+```
+
+5. Al acertar, se muestra la pantalla de celebración y, tras unos segundos, el botón "Obtener regalo supremo darkwalleano" que redirige al video de YouTube configurado en `app.py` (variable `youtube_regalo`).
 
 ---
 
@@ -468,16 +520,17 @@ def log_audit(action, data, user):
 ## Todas las FLAGS
 
 ```
-FLAG{images_should_not_talk}
-FLAG{debug_mode_ruins_everything}
-FLAG{client_side_validation_is_fake}
 FLAG{academic_roles_are_just_strings}
 FLAG{base64_is_a_lie}
+FLAG{client_side_validation_is_fake}
+FLAG{debug_mode_ruins_everything}
 FLAG{grades_are_not_sacred}
+FLAG{images_should_not_talk}
+FLAG{metadata_is_not_private}
 FLAG{this_is_why_universities_get_hacked}
 ```
 
-**Total: 7 FLAGS**
+**Total: 8 FLAGS** (en el orden alfabético usado para calcular el SHA1 de la bóveda)
 
 ---
 
