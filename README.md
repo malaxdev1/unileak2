@@ -1,195 +1,162 @@
-# 🎯 DarkWall Lab 2026 - UniLeak
+```
+██████╗  █████╗ ██████╗ ██╗  ██╗██╗    ██╗ █████╗ ██╗     ██╗
+██╔══██╗██╔══██╗██╔══██╗██║ ██╔╝██║    ██║██╔══██╗██║     ██║
+██║  ██║███████║██████╔╝█████╔╝ ██║ █╗ ██║███████║██║     ██║
+██║  ██║██╔══██║██╔══██╗██╔═██╗ ██║███╗██║██╔══██║██║     ██║
+██████╔╝██║  ██║██║  ██║██║  ██╗╚███╔███╔╝██║  ██║███████╗███████╗
+╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚══════╝╚══════╝
 
-> "Solo estaba mirando..."
+██╗      █████╗ ██████╗ ███████╗    ██████╗  ██████╗ ██████╗  ██████╗        ██╗
+██║     ██╔══██╗██╔══██╗██╔════╝    ╚════██╗██╔═████╗╚════██╗██╔════╝       ███║
+██║     ███████║██████╔╝███████╗     █████╔╝██║██╔██║ █████╔╝███████╗ █████╗╚██║
+██║     ██╔══██║██╔══██╗╚════██║    ██╔═══╝ ████╔╝██║██╔═══╝ ██╔═══██╗╚════╝ ██║
+███████╗██║  ██║██████╔╝███████║    ███████╗╚██████╔╝███████╗╚██████╔╝       ██║
+╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝    ╚══════╝ ╚═════╝ ╚══════╝ ╚═════╝        ╚═╝
 
-Sistema universitario de gestión académica de la Universidad de Medellín.
+                        Universidad de Medellín
+                        UNILEAK - Laboratorio 2026
+```
 
-![Status](https://img.shields.io/badge/status-active-success)
-![Python](https://img.shields.io/badge/python-3.8+-blue)
-![Flask](https://img.shields.io/badge/flask-3.0-lightgrey)
-
----
-
-## 📋 Descripción
-
-UniGest es el sistema de consultas y servicios de la Universidad de Medellín. Permite a estudiantes, monitores y coordinadores gestionar información académica y financiera de manera eficiente.
-
-### Características Principales
-
-✅ Panel de estudiante con acceso a notas y estado financiero  
-✅ Sistema de revisión de calificaciones  
-✅ Panel de monitor para gestión de solicitudes  
-✅ Panel de coordinación académica  
-✅ Gestión de deudas y pagos  
-✅ Interfaz intuitiva y responsive  
+"Solo estaba mirando..."
 
 ---
 
-## 🚀 Instalación
+## Descripción
 
-### Requisitos Previos
+UniLeak es un laboratorio educativo de seguridad ofensiva que simula un sistema universitario con vulnerabilidades intencionales. El participante asume el rol de un estudiante que explora el sistema; las fallas de diseño permiten una escalada progresiva sin necesidad de exploits complejos ni herramientas avanzadas.
+
+El laboratorio está pensado como una cadena de descubrimientos: cada hallazgo conduce al siguiente, en un flujo narrativo que refleja cómo pequeñas debilidades se combinan en un entorno real.
+
+**Advertencia:** Todas las vulnerabilidades son intencionales. Uso exclusivamente educativo. No utilizar estas técnicas en sistemas reales sin autorización explícita.
+
+---
+
+## Requisitos
 
 - Python 3.8 o superior
-- pip (gestor de paquetes de Python)
+- pip
+- Navegador moderno (Chrome, Firefox o Edge) con DevTools (F12)
 
-### Pasos de Instalación
-
-1. **Clonar o descargar el proyecto**
-
-2. **Instalar dependencias:**
-```bash
-pip install -r requirements.txt
-```
-
-3. **Generar recursos necesarios:**
-```bash
-python create_stego_image.py
-```
-
-4. **Ejecutar la aplicación:**
-```bash
-python app.py
-```
-
-O usar el script de ejecución rápida:
-```bash
-run.bat
-```
-
-5. **Acceder al sistema:**
-```
-http://localhost:5000
-```
+Opcional para algunas pruebas: CyberChef, AperiSolve, editor de cookies o Burp Suite.
 
 ---
 
-## 👤 Credenciales de Acceso
+## Instalación y ejecución
 
-### Estudiantes
-- **Usuario:** 20261001 | **Clave:** 12051998
-- **Usuario:** 20261002 | **Clave:** 23071999
-- **Usuario:** 20261003 | **Clave:** 15031997
+1. Clonar o descargar el proyecto.
 
-### Personal Administrativo
-- **Usuario:** 10011234 | **Clave:** admin2026 (Monitor)
-- **Usuario:** 10021234 | **Clave:** coord2026 (Coordinador)
+2. Instalar dependencias:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Generar la imagen con esteganografía (carnet universitario y pista oculta):
+   ```bash
+   python create_stego_image.py
+   ```
+
+4. Colocar la foto del profesor en `static/uploads/professor.jpg` y, si aplica, configurar sus metadatos según `static/uploads/INSTRUCCIONES_FOTO_PROFESOR.txt`.
+
+5. Ejecutar la aplicación:
+   ```bash
+   python app.py
+   ```
+   Alternativa en Windows: `run.bat`
+
+6. Acceder en el navegador a: `http://localhost:5000`
 
 ---
 
-## 📁 Estructura del Proyecto
+## Credenciales de acceso
+
+| Rol           | Usuario  | Clave     |
+|---------------|----------|-----------|
+| Estudiante    | 20261001 | 12051998  |
+| Estudiante    | 20261002 | 23071999  |
+| Estudiante    | 20261003 | 15031997  |
+| Monitor       | 10011234 | admin2026 |
+| Coordinador   | 10021234 | coord2026 |
+
+Para seguir el flujo del laboratorio se suele comenzar con el estudiante 20261001.
+
+---
+
+## Estructura del proyecto
 
 ```
 labdarkwall2026/
-├── app.py                      # Aplicación Flask principal
-├── create_stego_image.py       # Generador de recursos
-├── decode_stego.py             # Utilidad de verificación
-├── requirements.txt            # Dependencias Python
+├── app.py                      # Aplicación Flask (rutas y lógica)
+├── create_stego_image.py       # Genera imagen con esteganografía LSB
+├── decode_stego.py             # Decodifica mensaje en profile_card.png
+├── requirements.txt
+├── run.bat                     # Arranque rápido (Windows)
 ├── README.md                   # Este archivo
-├── WALKTHROUGH.md             # Guía detallada
-├── run.bat                     # Script de ejecución
-├── data/                       # Base de datos CSV
-│   ├── usuarios.csv           # Usuarios del sistema
-│   ├── notas.csv              # Calificaciones
-│   ├── materias.csv           # Materias disponibles
-│   ├── deudas.csv             # Estado financiero
-│   └── revisiones.csv         # Solicitudes de revisión
-├── templates/                  # Plantillas HTML
-│   ├── login.html             # Página de ingreso
-│   ├── panel_estudiante.html  # Panel de estudiante
-│   ├── panel_monitor.html     # Panel de monitor
-│   ├── panel_academico.html   # Panel de coordinación
-│   ├── cambiar_clave.html     # Cambio de contraseña
-│   └── olvido_clave.html      # Recuperación de clave
+├── SOLUCION.md                 # Solución completa (spoilers)
+├── data/
+│   ├── usuarios.csv
+│   ├── notas.csv
+│   ├── materias.csv
+│   ├── deudas.csv
+│   └── revisiones.csv
+├── templates/
+│   ├── login.html
+│   ├── panel_estudiante.html
+│   ├── panel_monitor.html
+│   ├── panel_academico.html
+│   ├── secreto_profesor.html
+│   ├── boveda.html
+│   ├── cambiar_clave.html
+│   └── olvido_clave.html
 └── static/
-    ├── css/
-    │   └── style.css          # Estilos de la aplicación
+    ├── css/style.css
     └── uploads/
-        └── profile_card.png   # Carnet universitario
+        ├── profile_card.png    # Imagen con esteganografía
+        ├── professor.jpg       # Foto del profesor (metadatos; el usuario la aporta)
+        └── INSTRUCCIONES_FOTO_PROFESOR.txt
 ```
 
 ---
 
-## 🎓 Módulos del Sistema
+## Objetivos de aprendizaje
 
-### 1. Panel de Estudiante
-- Consulta de notas
-- Visualización de estado académico
-- Revisión de deudas
-- Perfil estudiantil
+El laboratorio trabaja, entre otros, los siguientes conceptos:
 
-### 2. Panel de Monitor
-- Gestión de solicitudes de revisión
-- Seguimiento de casos
-- Reportes académicos
-
-### 3. Panel de Coordinación
-- Administración de calificaciones
-- Gestión de estados académicos
-- Control financiero
-- Reportes administrativos
+- Esteganografía (LSB en imágenes) y gestión de información oculta
+- Information disclosure (endpoints de debug expuestos)
+- Bypass de validación solo en cliente
+- Insecure Direct Object Reference (IDOR)
+- Broken Access Control y escalada de privilegios
+- Manejo inseguro de tokens (p. ej. Base64 sin firma)
+- Falta de autorización en APIs y paneles
+- Exposición de información en metadatos (EXIF/comentarios en imágenes)
 
 ---
 
-## 🛠️ Tecnologías Utilizadas
+## Flujo del laboratorio
 
-- **Backend:** Flask 3.0
-- **Frontend:** HTML5, CSS3, JavaScript
-- **Almacenamiento:** CSV (simulación de base de datos)
-- **Procesamiento de Imágenes:** Pillow (PIL)
-- **Diseño:** CSS puro, responsive design
+El participante inicia como estudiante, explora el panel y la imagen del carnet, descubre endpoints internos y debilidades de validación, y puede acabar modificando notas, accediendo a paneles de monitor y coordinación, ajustando estado académico y financiero, y obteniendo la última pista desde los metadatos de la foto del profesor. La fase final consiste en calcular el SHA1 de las ocho flags (en orden alfabético) e introducirlo en la bóveda para completar el lab.
+
+Hay 8 flags en total. La documentación detallada de cada paso y la solución completa se encuentran en **SOLUCION.md**.
 
 ---
 
-## 📚 Documentación Adicional
+## Tecnologías
 
-Para una guía completa de uso y funcionalidades, consulta:
-- **[WALKTHROUGH.md](WALKTHROUGH.md)** - Guía detallada del sistema
-
----
-
-## 🔒 Seguridad
-
-Este sistema implementa controles de acceso basados en roles:
-- **Estudiantes:** Acceso a información personal y académica
-- **Monitores:** Gestión de revisiones y solicitudes
-- **Coordinadores:** Acceso administrativo completo
-
-**Nota:** Las credenciales predeterminadas son para entorno de desarrollo. En producción, cambiar todas las contraseñas y el `secret_key` de Flask.
+- Backend: Flask (Python)
+- Frontend: HTML, CSS, JavaScript
+- Datos: CSV (simulación de base de datos)
+- Imágenes: Pillow (PIL) para generación y decodificación de esteganografía
 
 ---
 
-## 🤝 Soporte
+## Documentación adicional
 
-Para reportar problemas o solicitar funcionalidades:
-1. Revisa la documentación en WALKTHROUGH.md
-2. Verifica que todos los archivos CSV estén presentes en `/data`
-3. Asegúrate de haber ejecutado `create_stego_image.py`
+- **SOLUCION.md:** Guía paso a paso con la solución completa de todos los actos, flags, rutas y hash final de la bóveda. Contiene spoilers; conviene consultarlo solo tras intentar el lab o para verificación.
 
 ---
 
-## 📄 Licencia
+## Aviso legal
 
-Este proyecto es para fines educativos y de demostración.
+Este proyecto es un entorno de aprendizaje controlado. Las vulnerabilidades son intencionales y están documentadas. El acceso no autorizado a sistemas informáticos es un delito; estas prácticas deben limitarse a entornos propios o autorizados. El conocimiento adquirido ha de usarse de forma responsable.
 
-**Universidad de Medellín** - Sistema de Gestión Académica  
-© 2026 - Todos los derechos reservados
-
----
-
-## 🎯 Comenzar
-
-```bash
-# 1. Instalar dependencias
-pip install -r requirements.txt
-
-# 2. Generar recursos
-python create_stego_image.py
-
-# 3. Iniciar aplicación
-python app.py
-
-# 4. Acceder
-# http://localhost:5000
-```
-
-**¡Listo para usar!** Inicia sesión con las credenciales proporcionadas.
+Universidad de Medellín – DarkWall Lab 2026. Fines educativos y de demostración.
