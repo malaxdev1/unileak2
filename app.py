@@ -5,25 +5,23 @@ import base64
 import os
 import hashlib
 import random
-import redis
 from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'univ_medellin_2026_secret'
 
-# Configuración de Vercel KV (Redis)
+# Configuración de Upstash Redis REST API
 KV_URL = os.environ.get('KV_REST_API_URL', '')
 KV_TOKEN = os.environ.get('KV_REST_API_TOKEN', '')
 
-# Inicializar Redis (funciona en local y en Vercel)
+# Inicializar Upstash Redis (REST API)
+kv = None
 try:
     if KV_URL and KV_TOKEN:
-        # Extraer host y puerto de la URL
-        kv = redis.from_url(KV_URL, decode_responses=True)
-    else:
-        # Fallback para desarrollo local sin KV
-        kv = None
-except:
+        from upstash_redis import Redis
+        kv = Redis(url=KV_URL, token=KV_TOKEN)
+except Exception as e:
+    print(f"Error conectando a Upstash Redis: {e}")
     kv = None
 
 # Helper functions para CSV (solo lectura - datos base)
