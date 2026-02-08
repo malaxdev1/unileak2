@@ -32,8 +32,11 @@ La imagen `profile_card.png` contiene un mensaje oculto usando esteganografía L
 ### Solución
 
 #### Método 1: Usando el script incluido
+
+Desde la raíz del proyecto:
+
 ```bash
-python decode_stego.py
+python scripts/decode_stego.py
 ```
 
 #### Método 2: Usando CyberChef
@@ -559,8 +562,4 @@ Este laboratorio demuestra cómo vulnerabilidades "pequeñas" se encadenan:
 
 ---
 
-**¿Completaste el lab? ¡Felicitaciones!**
-
-Ahora comprendes cómo pequeños errores de diseño pueden llevar a compromisos completos del sistema.
-
-**Usa este conocimiento de manera responsable.**
+Usa este conocimiento de manera responsable.
