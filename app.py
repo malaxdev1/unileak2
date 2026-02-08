@@ -5,11 +5,28 @@ import base64
 import os
 import hashlib
 import random
+import redis
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'univ_medellin_2026_secret'
 
-# Helper functions para CSV
+# Configuración de Vercel KV (Redis)
+KV_URL = os.environ.get('KV_REST_API_URL', '')
+KV_TOKEN = os.environ.get('KV_REST_API_TOKEN', '')
+
+# Inicializar Redis (funciona en local y en Vercel)
+try:
+    if KV_URL and KV_TOKEN:
+        # Extraer host y puerto de la URL
+        kv = redis.from_url(KV_URL, decode_responses=True)
+    else:
+        # Fallback para desarrollo local sin KV
+        kv = None
+except:
+    kv = None
+
+# Helper functions para CSV (solo lectura - datos base)
 def read_csv(filename):
     data = []
     filepath = os.path.join('data', filename)
@@ -19,12 +36,89 @@ def read_csv(filename):
             data = list(reader)
     return data
 
-def write_csv(filename, data, fieldnames):
-    filepath = os.path.join('data', filename)
-    with open(filepath, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(data)
+# Funciones para KV (datos por usuario)
+def get_user_data(user_id, key):
+    """Obtiene datos específicos de un usuario desde KV"""
+    if not kv:
+        return None
+    try:
+        data = kv.get(f"user:{user_id}:{key}")
+        return json.loads(data) if data else None
+    except:
+        return None
+
+def set_user_data(user_id, key, data):
+    """Guarda datos específicos de un usuario en KV"""
+    if not kv:
+        return False
+    try:
+        kv.set(f"user:{user_id}:{key}", json.dumps(data))
+        return True
+    except:
+        return False
+
+def initialize_user_data(user_id):
+    """Inicializa los datos de un nuevo usuario con los valores base"""
+    # Cargar datos base desde CSV
+    notas_base = read_csv('notas.csv')
+    deudas_base = read_csv('deudas.csv')
+    
+    # Crear copia para este usuario basada en estudiante ejemplo (20261001)
+    user_notas = [
+        {'estudiante_id': user_id, 'materia': 'Criptografía', 'nota': '5', 'estado': 'Aprobado'},
+        {'estudiante_id': user_id, 'materia': 'Seguridad de Redes', 'nota': '4.2', 'estado': 'Aprobado'},
+        {'estudiante_id': user_id, 'materia': 'Programación Web', 'nota': '3.5', 'estado': 'Aprobado'},
+        {'estudiante_id': user_id, 'materia': 'Bases de Datos', 'nota': '4.0', 'estado': 'Aprobado'},
+    ]
+    
+    user_deuda = {'estudiante_id': user_id, 'monto': '4200000', 'concepto': 'Matrícula 2026-1'}
+    
+    # Guardar en KV
+    set_user_data(user_id, 'notas', user_notas)
+    set_user_data(user_id, 'deuda', user_deuda)
+    set_user_data(user_id, 'flags', [])
+    set_user_data(user_id, 'created_at', datetime.now().isoformat())
+    
+    return True
+
+def check_user_exists(username):
+    """Verifica si un usuario ya está registrado"""
+    if not kv:
+        return False
+    return kv.exists(f"user:{username}:profile")
+
+def register_user(username, password, nombre):
+    """Registra un nuevo usuario en KV"""
+    if not kv:
+        return False
+    
+    if check_user_exists(username):
+        return False
+    
+    # Crear perfil de usuario
+    profile = {
+        'username': username,
+        'password': password,  # En producción deberías hashear esto
+        'nombre': nombre,
+        'rol': 'student',
+        'created_at': datetime.now().isoformat()
+    }
+    
+    set_user_data(username, 'profile', profile)
+    initialize_user_data(username)
+    
+    return True
+
+def verify_user(username, password):
+    """Verifica credenciales de usuario"""
+    if not kv:
+        return None
+    
+    profile = get_user_data(username, 'profile')
+    if profile and profile.get('password') == password:
+        return profile
+    
+    return None
 
 def get_user_role(request):
     cookie = request.cookies.get('session_data')
@@ -46,22 +140,76 @@ def get_user_id(request):
             return None
     return None
 
-# ACTO 1 - Login inicial
+# ACTO 0 - Registro de usuarios
 @app.route('/')
 def index():
     return render_template('login.html')
 
+@app.route('/register')
+def register_page():
+    return render_template('register.html')
+
+@app.route('/register', methods=['POST'])
+def register():
+    username = request.form.get('username', '').strip()
+    password = request.form.get('password', '').strip()
+    nombre = request.form.get('nombre', '').strip()
+    
+    if not username or not password or not nombre:
+        flash('Todos los campos son requeridos', 'error')
+        return redirect(url_for('register_page'))
+    
+    if not kv:
+        flash('El sistema de registro no está disponible. Configura Vercel KV.', 'error')
+        return redirect(url_for('register_page'))
+    
+    if check_user_exists(username):
+        flash('El nombre de usuario ya está en uso', 'error')
+        return redirect(url_for('register_page'))
+    
+    if register_user(username, password, nombre):
+        flash('¡Registro exitoso! Ya puedes iniciar sesión', 'success')
+        return redirect(url_for('index'))
+    else:
+        flash('Error al registrar usuario', 'error')
+        return redirect(url_for('register_page'))
+
+# ACTO 1 - Login
 @app.route('/login', methods=['POST'])
 def login():
     usuario = request.form.get('usuario')
     clave = request.form.get('clave')
     
-    # Validación básica (insegura a propósito)
-    users = read_csv('usuarios.csv')
+    # Primero intentar con usuarios registrados en KV
+    if kv:
+        profile = verify_user(usuario, clave)
+        if profile:
+            session_data = json.dumps({
+                'user_id': usuario,
+                'nombre': profile['nombre'],
+                'role': profile['rol']
+            })
+            
+            resp = make_response(redirect(url_for('panel_estudiante')))
+            resp.set_cookie('session_data', session_data)
+            return resp
     
+    # Fallback: usuarios demo del CSV (para compatibilidad)
+    users = read_csv('usuarios.csv')
     for user in users:
         if user['documento'] == usuario and user['clave'] == clave:
-            # Crear cookie de sesión (JSON en texto plano)
+            # Inicializar datos si no existen
+            if kv and not check_user_exists(usuario):
+                profile = {
+                    'username': usuario,
+                    'password': clave,
+                    'nombre': user['nombre'],
+                    'rol': user['rol'],
+                    'created_at': datetime.now().isoformat()
+                }
+                set_user_data(usuario, 'profile', profile)
+                initialize_user_data(usuario)
+            
             session_data = json.dumps({
                 'user_id': user['documento'],
                 'nombre': user['nombre'],
@@ -82,13 +230,25 @@ def panel_estudiante():
     if not user_id:
         return redirect(url_for('index'))
     
-    # Cargar datos del estudiante
-    notas = read_csv('notas.csv')
+    # Cargar datos base
     materias = read_csv('materias.csv')
-    deudas = read_csv('deudas.csv')
     
-    user_notas = [n for n in notas if n['estudiante_id'] == user_id]
-    user_deuda = next((d for d in deudas if d['estudiante_id'] == user_id), None)
+    # Cargar datos específicos del usuario desde KV
+    if kv:
+        user_notas = get_user_data(user_id, 'notas') or []
+        user_deuda = get_user_data(user_id, 'deuda')
+        
+        # Si no tiene datos, inicializarlos
+        if not user_notas:
+            initialize_user_data(user_id)
+            user_notas = get_user_data(user_id, 'notas') or []
+            user_deuda = get_user_data(user_id, 'deuda')
+    else:
+        # Fallback sin KV (desarrollo local)
+        notas = read_csv('notas.csv')
+        deudas = read_csv('deudas.csv')
+        user_notas = [n for n in notas if n['estudiante_id'] == user_id]
+        user_deuda = next((d for d in deudas if d['estudiante_id'] == user_id), None)
     
     return render_template('panel_estudiante.html', 
                          notas=user_notas, 
@@ -129,15 +289,21 @@ def update_grades():
     subject = data.get('subject')
     grade = data.get('grade')
     
-    # Sin validación de permisos ni de lógica de negocio
-    notas = read_csv('notas.csv')
+    # Obtener el usuario actual
+    current_user_id = get_user_id(request)
+    if not current_user_id:
+        return jsonify({'error': 'No autorizado'}), 401
     
-    for nota in notas:
-        if nota['estudiante_id'] == student_id and nota['materia'] == subject:
-            nota['nota'] = str(grade)
-            break
-    
-    write_csv('notas.csv', notas, ['estudiante_id', 'materia', 'nota', 'estado'])
+    # Cargar notas del usuario desde KV
+    if kv:
+        user_notas = get_user_data(current_user_id, 'notas') or []
+        
+        for nota in user_notas:
+            if nota['estudiante_id'] == current_user_id and nota['materia'] == subject:
+                nota['nota'] = str(grade)
+                break
+        
+        set_user_data(current_user_id, 'notas', user_notas)
     
     # FLAG{client_side_validation_is_fake}
     return jsonify({
@@ -215,15 +381,21 @@ def update_academic():
     subject = data.get('subject')
     new_status = data.get('status')
     
-    # Sin validaciones
-    notas = read_csv('notas.csv')
+    # Obtener el usuario actual
+    current_user_id = get_user_id(request)
+    if not current_user_id:
+        return jsonify({'error': 'No autorizado'}), 401
     
-    for nota in notas:
-        if nota['estudiante_id'] == student_id and nota['materia'] == subject:
-            nota['estado'] = new_status
-            break
-    
-    write_csv('notas.csv', notas, ['estudiante_id', 'materia', 'nota', 'estado'])
+    # Cargar notas del usuario desde KV
+    if kv:
+        user_notas = get_user_data(current_user_id, 'notas') or []
+        
+        for nota in user_notas:
+            if nota['estudiante_id'] == current_user_id and nota['materia'] == subject:
+                nota['estado'] = new_status
+                break
+        
+        set_user_data(current_user_id, 'notas', user_notas)
     
     # FLAG{grades_are_not_sacred}
     return jsonify({
@@ -239,15 +411,16 @@ def update_finance():
     student_id = data.get('student_id')
     new_debt = data.get('debt', 0)
     
-    # Sin validaciones ni auditoría
-    deudas = read_csv('deudas.csv')
+    # Obtener el usuario actual
+    current_user_id = get_user_id(request)
+    if not current_user_id:
+        return jsonify({'error': 'No autorizado'}), 401
     
-    for deuda in deudas:
-        if deuda['estudiante_id'] == student_id:
-            deuda['monto'] = str(new_debt)
-            break
-    
-    write_csv('deudas.csv', deudas, ['estudiante_id', 'monto', 'concepto'])
+    # Actualizar deuda del usuario en KV
+    if kv:
+        user_deuda = get_user_data(current_user_id, 'deuda') or {}
+        user_deuda['monto'] = str(new_debt)
+        set_user_data(current_user_id, 'deuda', user_deuda)
     
     # FLAG financiera; siguiente pista: foto del profesor (metadatos)
     return jsonify({

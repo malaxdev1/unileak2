@@ -31,11 +31,47 @@ El laboratorio está pensado como una cadena de descubrimientos: cada hallazgo c
 
 ---
 
+## 🆕 Sistema Multi-Usuario
+
+UniLeak ahora soporta **múltiples usuarios simultáneos** sin interferencias entre sí, ideal para despliegues en la nube donde varios estudiantes pueden trabajar al mismo tiempo.
+
+### Características
+- ✅ **Registro de usuarios** individual
+- ✅ **Aislamiento total** de datos por usuario
+- ✅ **Progreso independiente** (notas, deudas, flags)
+- ✅ **Sin sabotaje** entre participantes
+- ✅ **Persistencia** en Vercel KV (Redis)
+
+### Despliegue Rápido en Vercel
+
+Para desplegar en producción con múltiples usuarios:
+
+**📚 Ver:** `QUICKSTART.md` - Guía de 5 minutos  
+**📖 Ver:** `SETUP_VERCEL.md` - Documentación completa  
+
+```bash
+# 1. Sube a GitHub
+git push origin main
+
+# 2. Importa en vercel.com/new
+
+# 3. Agrega Vercel KV desde Storage → Create Database → KV
+
+# 4. ¡Listo! Los usuarios pueden registrarse y empezar
+```
+
+---
+
 ## Requisitos
 
+### Para uso local
 - Python 3.8 o superior
 - pip
 - Navegador moderno (Chrome, Firefox o Edge) con DevTools (F12)
+
+### Para despliegue en Vercel
+- Cuenta de Vercel (gratuita)
+- Vercel KV habilitado (incluido en plan gratuito)
 
 Opcional para algunas pruebas: CyberChef, AperiSolve, editor de cookies o Burp Suite.
 
@@ -71,6 +107,8 @@ Opcional para algunas pruebas: CyberChef, AperiSolve, editor de cookies o Burp S
 
 ## Credenciales de acceso
 
+### Usuarios Demo (pre-configurados)
+
 | Rol         | Usuario  | Clave     |
 | ----------- | -------- | --------- |
 | Estudiante  | 20261001 | 12051998  |
@@ -80,6 +118,15 @@ Opcional para algunas pruebas: CyberChef, AperiSolve, editor de cookies o Burp S
 | Coordinador | 10021234 | coord2026 |
 
 Para seguir el flujo del laboratorio se suele comenzar con el estudiante 20261001.
+
+### Registro de Nuevos Usuarios
+
+En el despliegue con Vercel KV, cada participante puede:
+1. Hacer clic en **"¿No tienes cuenta? Regístrate aquí"**
+2. Crear su propio usuario único
+3. Trabajar con su propio conjunto de datos aislado
+
+Esto permite que múltiples personas usen el lab simultáneamente sin interferir entre sí.
 
 ---
 
@@ -144,16 +191,20 @@ Hay 8 flags en total. La documentación detallada de cada paso y la solución co
 
 ## Tecnologías
 
-- Backend: Flask (Python)
-- Frontend: HTML, CSS, JavaScript
-- Datos: CSV (simulación de base de datos)
-- Imágenes: Pillow (PIL) para generación y decodificación de esteganografía
+- **Backend:** Flask (Python)
+- **Frontend:** HTML, CSS, JavaScript
+- **Datos:** CSV (datos base) + Vercel KV/Redis (progreso de usuarios)
+- **Imágenes:** Pillow (PIL) para generación y decodificación de esteganografía
+- **Despliegue:** Vercel con KV (Redis) para multi-usuario
 
 ---
 
 ## Documentación adicional
 
 - **SOLUCION.md:** Guía paso a paso con la solución completa de todos los actos, flags, rutas y hash final de la bóveda. Contiene spoilers; conviene consultarlo solo tras intentar el lab o para verificación.
+- **QUICKSTART.md:** Guía rápida de despliegue en Vercel (5 minutos)
+- **SETUP_VERCEL.md:** Documentación completa de configuración con Vercel KV
+- **IMPLEMENTACION_KV.md:** Detalles técnicos de la arquitectura multi-usuario
 
 ---
 
