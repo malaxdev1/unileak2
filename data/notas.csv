@@ -1,8 +1,8 @@
 estudiante_id,materia,nota,estado
-20261001,Criptografía,5,Aprobado
+20261001,Criptografía,2.5,Reprobado
 20261001,Seguridad de Redes,4.2,Aprobado
 20261001,Programación Web,3.5,Aprobado
 20261001,Bases de Datos,4.0,Aprobado
-20261002,Criptografía,4.5,Aprobado
+20261002,Criptografía,2.5,Reprobado
 20261002,Seguridad de Redes,3.8,Aprobado
-20261003,Criptografía,3.2,Aprobado
+20261003,Criptografía,2.5,Reprobado

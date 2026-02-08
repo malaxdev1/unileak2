@@ -7,6 +7,10 @@ import hashlib
 import random
 from datetime import datetime
 
+# Cargar variables de entorno desde .env (solo en desarrollo local)
+from dotenv import load_dotenv
+load_dotenv()
+
 app = Flask(__name__)
 app.secret_key = 'univ_medellin_2026_secret'
 
@@ -14,14 +18,29 @@ app.secret_key = 'univ_medellin_2026_secret'
 KV_URL = os.environ.get('KV_REST_API_URL', '')
 KV_TOKEN = os.environ.get('KV_REST_API_TOKEN', '')
 
+# Debug: Ver si las variables se cargaron
+print(f"[DEBUG] KV_URL cargado: {KV_URL[:30] if KV_URL else 'NO ENCONTRADO'}...")
+print(f"[DEBUG] KV_TOKEN cargado: {KV_TOKEN[:20] if KV_TOKEN else 'NO ENCONTRADO'}...")
+
 # Inicializar Upstash Redis (REST API)
 kv = None
 try:
     if KV_URL and KV_TOKEN:
         from upstash_redis import Redis
         kv = Redis(url=KV_URL, token=KV_TOKEN)
+        print(f"[OK] Conectado a Upstash Redis exitosamente!")
+        # Test de conexión
+        try:
+            kv.ping()
+            print(f"[OK] PING a Redis exitoso!")
+        except Exception as ping_error:
+            print(f"[WARNING] PING fallo: {ping_error}")
+    else:
+        print(f"[ERROR] Variables de entorno no encontradas")
+        print(f"   KV_URL existe: {bool(KV_URL)}")
+        print(f"   KV_TOKEN existe: {bool(KV_TOKEN)}")
 except Exception as e:
-    print(f"Error conectando a Upstash Redis: {e}")
+    print(f"[ERROR] Error conectando a Upstash Redis: {e}")
     kv = None
 
 # Helper functions para CSV (solo lectura - datos base)
@@ -56,19 +75,17 @@ def set_user_data(user_id, key, data):
         return False
 
 def initialize_user_data(user_id):
-    """Inicializa los datos de un nuevo usuario con los valores base"""
-    # Cargar datos base desde CSV
-    notas_base = read_csv('notas.csv')
-    deudas_base = read_csv('deudas.csv')
-    
-    # Crear copia para este usuario basada en estudiante ejemplo (20261001)
+    """Inicializa los datos de un nuevo usuario con los valores base del laboratorio"""
+    # Cada usuario nuevo empieza con el mismo estado inicial del CTF
+    # Criptografía PERDIDA para que la cambien durante el laboratorio
     user_notas = [
-        {'estudiante_id': user_id, 'materia': 'Criptografía', 'nota': '5', 'estado': 'Aprobado'},
+        {'estudiante_id': user_id, 'materia': 'Criptografía', 'nota': '2.5', 'estado': 'Reprobado'},
         {'estudiante_id': user_id, 'materia': 'Seguridad de Redes', 'nota': '4.2', 'estado': 'Aprobado'},
         {'estudiante_id': user_id, 'materia': 'Programación Web', 'nota': '3.5', 'estado': 'Aprobado'},
         {'estudiante_id': user_id, 'materia': 'Bases de Datos', 'nota': '4.0', 'estado': 'Aprobado'},
     ]
     
+    # Deuda inicial que deben eliminar durante el laboratorio
     user_deuda = {'estudiante_id': user_id, 'monto': '4200000', 'concepto': 'Matrícula 2026-1'}
     
     # Guardar en KV
