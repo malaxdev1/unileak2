@@ -304,21 +304,20 @@ def update_grades():
     subject = data.get('subject')
     grade = data.get('grade')
     
-    # Obtener el usuario actual
-    current_user_id = get_user_id(request)
-    if not current_user_id:
-        return jsonify({'error': 'No autorizado'}), 401
+    if not student_id or not subject or grade is None:
+        return jsonify({'error': 'Faltan parámetros requeridos'}), 400
     
+    # Usar directamente el student_id del request (sin validación de autenticación)
     # Cargar notas del usuario desde KV
     if kv:
-        user_notas = get_user_data(current_user_id, 'notas') or []
+        user_notas = get_user_data(student_id, 'notas') or []
         
         for nota in user_notas:
-            if nota['estudiante_id'] == current_user_id and nota['materia'] == subject:
+            if nota['estudiante_id'] == student_id and nota['materia'] == subject:
                 nota['nota'] = str(grade)
                 break
         
-        set_user_data(current_user_id, 'notas', user_notas)
+        set_user_data(student_id, 'notas', user_notas)
     
     # FLAG{client_side_validation_is_fake}
     return jsonify({
@@ -426,16 +425,15 @@ def update_finance():
     student_id = data.get('student_id')
     new_debt = data.get('debt', 0)
     
-    # Obtener el usuario actual
-    current_user_id = get_user_id(request)
-    if not current_user_id:
-        return jsonify({'error': 'No autorizado'}), 401
+    if not student_id:
+        return jsonify({'error': 'Falta student_id'}), 400
     
+    # Usar directamente el student_id del request (sin validación de autenticación)
     # Actualizar deuda del usuario en KV
     if kv:
-        user_deuda = get_user_data(current_user_id, 'deuda') or {}
+        user_deuda = get_user_data(student_id, 'deuda') or {}
         user_deuda['monto'] = str(new_debt)
-        set_user_data(current_user_id, 'deuda', user_deuda)
+        set_user_data(student_id, 'deuda', user_deuda)
     
     # FLAG financiera; siguiente pista: foto del profesor (metadatos)
     return jsonify({
