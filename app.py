@@ -102,6 +102,51 @@ def check_user_exists(username):
         return False
     return kv.exists(f"user:{username}:profile")
 
+def get_all_users_from_kv():
+    """Obtiene todos los usuarios registrados en KV"""
+    if not kv:
+        return []
+    try:
+        # Intentar obtener keys con patrón (Upstash puede usar scan o keys)
+        keys = []
+        try:
+            # Método 1: Intentar con keys() si está disponible
+            keys = kv.keys("user:*:profile")
+        except:
+            try:
+                # Método 2: Intentar con scan() si keys() no funciona
+                cursor = 0
+                while True:
+                    result = kv.scan(cursor, match="user:*:profile", count=100)
+                    cursor = result[0]
+                    keys.extend(result[1])
+                    if cursor == 0:
+                        break
+            except:
+                # Método 3: Si ambos fallan, retornar lista vacía (fallback a CSV)
+                print("[WARNING] No se pudo obtener lista de usuarios de KV, usando fallback")
+                return []
+        
+        users = []
+        for key in keys:
+            # Extraer username de la key (user:username:profile)
+            # La key puede venir como string o bytes
+            key_str = key.decode('utf-8') if isinstance(key, bytes) else str(key)
+            parts = key_str.split(':')
+            if len(parts) >= 2:
+                username = parts[1]
+                profile = get_user_data(username, 'profile')
+                if profile:
+                    users.append({
+                        'username': username,
+                        'nombre': profile.get('nombre', username),
+                        'rol': profile.get('rol', 'student')
+                    })
+        return users
+    except Exception as e:
+        print(f"[ERROR] Error obteniendo usuarios de KV: {e}")
+        return []
+
 def register_user(username, password, nombre):
     """Registra un nuevo usuario en KV"""
     if not kv:
@@ -406,7 +451,34 @@ def monitor_panel():
     
     # Sin validación real de rol
     if role in ['monitor', 'coordinator', 'admin']:
-        revisiones = read_csv('revisiones.csv')
+        # Obtener usuarios reales de KV y generar revisiones
+        revisiones = []
+        if kv:
+            users = get_all_users_from_kv()
+            # Si no hay usuarios en KV, usar CSV como fallback
+            if not users:
+                csv_revisiones = read_csv('revisiones.csv')
+                revisiones = csv_revisiones
+            else:
+                # Generar revisiones basadas en usuarios reales
+                # Cada usuario con materia Criptografía reprobada tiene una revisión pendiente
+                for idx, user in enumerate(users[:10], start=1):  # Máximo 10 usuarios
+                    user_notas = get_user_data(user['username'], 'notas') or []
+                    for nota in user_notas:
+                        if nota.get('materia') == 'Criptografía' and nota.get('estado') == 'Reprobado':
+                            revisiones.append({
+                                'id': str(idx),
+                                'estudiante': user['username'],
+                                'materia': 'Criptografía',
+                                'fecha': datetime.now().strftime('%Y-%m-%d'),
+                                'estado': 'Pendiente',
+                                'observacion': f'Solicita revision de examen final - {user.get("nombre", user["username"])}'
+                            })
+                            break
+        else:
+            # Fallback sin KV
+            revisiones = read_csv('revisiones.csv')
+        
         return render_template('panel_monitor.html', revisiones=revisiones)
     else:
         return "Acceso denegado. Rol actual: " + role, 403
@@ -447,14 +519,51 @@ def academic_panel():
             token_data = json.loads(decoded)
             
             if token_data.get('role') == 'coordinator' and not token_data.get('limited', True):
-                estudiantes = read_csv('usuarios.csv')
-                notas = read_csv('notas.csv')
-                deudas = read_csv('deudas.csv')
+                # Obtener usuarios reales de KV
+                estudiantes_list = []
+                notas_list = []
+                deudas_list = []
+                
+                if kv:
+                    users = get_all_users_from_kv()
+                    for user in users:
+                        username = user['username']
+                        # Agregar a estudiantes
+                        estudiantes_list.append({
+                            'documento': username,
+                            'nombre': user.get('nombre', username),
+                            'rol': user.get('rol', 'student')
+                        })
+                        
+                        # Obtener notas del usuario
+                        user_notas = get_user_data(username, 'notas') or []
+                        for nota in user_notas:
+                            notas_list.append({
+                                'estudiante_id': username,
+                                'materia': nota.get('materia', ''),
+                                'nota': nota.get('nota', '0'),
+                                'estado': nota.get('estado', 'Pendiente')
+                            })
+                        
+                        # Obtener deuda del usuario
+                        user_deuda = get_user_data(username, 'deuda') or {}
+                        if user_deuda:
+                            deudas_list.append({
+                                'estudiante_id': username,
+                                'monto': user_deuda.get('monto', '0'),
+                                'concepto': user_deuda.get('concepto', 'Sin concepto')
+                            })
+                
+                # Si no hay usuarios en KV, usar CSV como fallback
+                if not estudiantes_list:
+                    estudiantes_list = read_csv('usuarios.csv')
+                    notas_list = read_csv('notas.csv')
+                    deudas_list = read_csv('deudas.csv')
                 
                 return render_template('panel_academico.html', 
-                                     estudiantes=estudiantes,
-                                     notas=notas,
-                                     deudas=deudas)
+                                     estudiantes=estudiantes_list,
+                                     notas=notas_list,
+                                     deudas=deudas_list)
         except:
             pass
     

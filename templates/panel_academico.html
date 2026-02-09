@@ -52,7 +52,9 @@
                                 <td>{{ nota.estudiante_id }}</td>
                                 <td>{{ nota.materia }}</td>
                                 <td>{{ nota.nota }}</td>
-                                <td>{{ nota.estado }}</td>
+                                <td>
+                                    <span class="status-badge {% if nota.estado == 'Reprobado' %}status-danger{% elif nota.estado == 'Pendiente' %}status-warning{% else %}status-success{% endif %}">{{ nota.estado }}</span>
+                                </td>
                                 <td>
                                     <button class="btn-sm btn-warning" 
                                             onclick="cambiarEstado('{{ nota.estudiante_id }}', '{{ nota.materia }}')">
@@ -120,7 +122,9 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    alert(data.message);
+                    let msg = data.message || 'Listo.';
+                    if(data.flag) msg += '\n\nFlag: ' + data.flag;
+                    alert(msg);
                     if(data.success) location.reload();
                 });
             }
@@ -142,7 +146,9 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    alert(data.message);
+                    let msg = data.message || 'Listo.';
+                    if(data.flag) msg += '\n\nFlag: ' + data.flag;
+                    alert(msg);
                     if(data.success) {
                         if(data.next_step) {
                             window.location.href = data.next_step;

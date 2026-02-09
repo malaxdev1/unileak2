@@ -78,7 +78,7 @@
                 <td>{{ rev.materia }}</td>
                 <td>{{ rev.fecha }}</td>
                 <td>
-                  <span class="status-badge">{{ rev.estado }}</span>
+                  <span class="status-badge {% if rev.estado == 'Rechazada' or rev.estado == 'Reprobado' %}status-danger{% elif rev.estado == 'Pendiente' %}status-warning{% else %}status-success{% endif %}">{{ rev.estado }}</span>
                 </td>
                 <td>{{ rev.observacion }}</td>
               </tr>
