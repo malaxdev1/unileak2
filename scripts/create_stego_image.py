@@ -66,7 +66,7 @@ def create_profile_card():
         font_small = ImageFont.load_default()
 
     # Título
-    draw.text((20, 20), "UNIVERSIDAD DE MEDELLÍN", fill='white', font=font_large)
+    draw.text((20, 20), "UNIVERSIDAD DE MELLÍN", fill='white', font=font_large)
 
     # Información del estudiante
     draw.rectangle([0, 60, width, height], fill='#f0f0f0')
@@ -78,7 +78,7 @@ def create_profile_card():
     draw.text((20, y_pos), "Nombre: Carlos Mendoza", fill='#333', font=font_small)
 
     y_pos += 25
-    draw.text((20, y_pos), "Documento: 20261001", fill='#333', font=font_small)
+    draw.text((20, y_pos), "Documento: 1031086399", fill='#333', font=font_small)
 
     y_pos += 25
     draw.text((20, y_pos), "Programa: Ingeniería de Sistemas", fill='#333', font=font_small)

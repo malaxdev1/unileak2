@@ -1,100 +1,129 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UniGest - Sistema de Consultas y Servicios</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UniLeak - Sistema de Consultas y Servicios (DarkWall Lab)</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
     <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="logo-section">
-                <div class="logo-placeholder">
-                    <div class="logo-text">Universidad<br>de Medellín</div>
-                </div>
-            </div>
-            <div class="title-section">
-                <h1>CONSULTAS Y SERVICIOS</h1>
-            </div>
-            <div class="info-corner">
-                udearroba.edu.co
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="content-wrapper">
-                <!-- Left Side - Login Form -->
-                <div class="login-section">
-                    <div class="login-box">
-                        <h2>Ingreso al Sistema</h2>
-                        
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
-                        
-                        <form action="{{ url_for('login') }}" method="POST">
-                            <div class="form-group">
-                                <label for="usuario">
-                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z'/%3E%3C/svg%3E" alt="Usuario" class="input-icon">
-                                    Usuario
-                                </label>
-                                <input type="text" id="usuario" name="usuario" class="form-control" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="clave">
-                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z'/%3E%3C/svg%3E" alt="Clave" class="input-icon">
-                                    Clave
-                                </label>
-                                <input type="password" id="clave" name="clave" class="form-control" required>
-                            </div>
-                            
-                            <div class="button-group">
-                                <button type="submit" class="btn btn-primary">Ingresar</button>
-                                <button type="reset" class="btn btn-secondary">Limpiar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Right Side - Instructions -->
-                <div class="instructions-section">
-                    <h3>Para ingresar al sistema siga los siguientes pasos.</h3>
-                    
-                    <ol class="instructions-list">
-                        <li>
-                            <strong>Ingrese en el Usuario</strong> el número de identificación <strong>sin puntos ni comas.</strong>
-                        </li>
-                        <li>
-                            <strong>Ingrese en la Clave</strong> la fecha de nacimiento en el formato <strong>ddmmaaaa</strong> separados de esta manera dos dígitos día del servicio de cambio de clave, ingrese la nueva clave.
-                            <br>Si usted ha utilizado el servicio de cambio de clave, ingrese la nueva clave.
-                        </li>
-                        <li>
-                            Haga clic en el Botón <strong>Ingresar</strong>
-                        </li>
-                    </ol>
-                    
-                    <div class="links-section">
-                        <a href="{{ url_for('cambiar_clave') }}" class="link">¿Desea cambiar su clave?</a>
-                        <a href="{{ url_for('olvido_clave') }}" class="link">¿Se olvidó su clave?</a>
-                    </div>
-                </div>
-            </div>
+      <!-- Header -->
+      <header class="header">
+        <div class="logo-section">
+          <div class="logo-placeholder">
+            <div class="logo-text">Universidad<br />de Mellín</div>
+          </div>
         </div>
+        <div class="title-section">
+          <h1>CONSULTAS Y SERVICIOS</h1>
+        </div>
+        <div class="info-corner">udemarroba.edu.co</div>
+      </header>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <p>
-                Universidad de Medellín - Teléfono (604)3405555 - Mercedeo sur # 87 30 - Medellín - Colombia. Reserved.
-            </p>
-        </footer>
+      <!-- Main Content -->
+      <div class="main-content">
+        <div class="content-wrapper">
+          <!-- Left Side - Login Form -->
+          <div class="login-section">
+            <div class="login-box">
+              <h2>Ingreso al Sistema</h2>
+
+              {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %} {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+              {% endfor %} {% endif %} {% endwith %}
+
+              <form action="{{ url_for('login') }}" method="POST">
+                <div class="form-group">
+                  <label for="usuario">
+                    <img
+                      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z'/%3E%3C/svg%3E"
+                      alt="Usuario"
+                      class="input-icon"
+                    />
+                    Usuario
+                  </label>
+                  <input
+                    type="text"
+                    id="usuario"
+                    name="usuario"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="clave">
+                    <img
+                      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z'/%3E%3C/svg%3E"
+                      alt="Clave"
+                      class="input-icon"
+                    />
+                    Clave
+                  </label>
+                  <input
+                    type="password"
+                    id="clave"
+                    name="clave"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="button-group">
+                  <button type="submit" class="btn btn-primary">
+                    Ingresar
+                  </button>
+                  <button type="reset" class="btn btn-secondary">
+                    Limpiar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Right Side - Instructions -->
+          <div class="instructions-section">
+            <h3>Para ingresar al sistema siga los siguientes pasos.</h3>
+
+            <ol class="instructions-list">
+              <li>
+                <strong>Ingrese en el Usuario</strong> el número de
+                identificación <strong>sin puntos ni comas.</strong>
+              </li>
+              <li>
+                <strong>Ingrese en la Clave</strong> la fecha de nacimiento en
+                el formato <strong>ddmmaaaa</strong> separados de esta manera
+                dos dígitos día del servicio de cambio de clave, ingrese la
+                nueva clave. <br />Si usted ha utilizado el servicio de cambio
+                de clave, ingrese la nueva clave.
+              </li>
+              <li>Haga clic en el Botón <strong>Ingresar</strong></li>
+            </ol>
+
+            <div class="links-section">
+              <a href="{{ url_for('cambiar_clave') }}" class="link"
+                >¿Desea cambiar su clave?</a
+              >
+              <a href="{{ url_for('olvido_clave') }}" class="link"
+                >¿Se olvidó su clave?</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p>
+          Universidad de Medellín - Teléfono (604)3405555 - Mercedeo sur # 87 30
+          - Medellín - Colombia. Reserved.
+        </p>
+      </footer>
     </div>
-</body>
+  </body>
 </html>
